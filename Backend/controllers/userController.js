@@ -27,3 +27,50 @@ exports.signupWithEmail = async (req, res) => {
     });
   }
 };
+
+exports.createUserPassword = async (req, res) => {
+  try {
+    //
+    const { password } = req.body;
+    const newUser = await User.findByIdAndUpdate(id, password);
+    res.status(200).json({
+      status: "success",
+      data: {
+        newUser,
+      },
+    });
+  } catch (err) {
+    //
+    res.status(400).json({
+      status: "fail",
+      error: err.message,
+    });
+  }
+};
+
+exports.submitUserDetails = async (req, res) => {
+  try {
+    //
+    const { fname, lname, linkedInURL, city, state, country } = req.body;
+    const newUser = await User.findByIdAndUpdate(id, {
+      fname,
+      lname,
+      linkedInURL,
+      city,
+      state,
+      country,
+    });
+    res.status(200).json({
+      status: "success",
+      data: {
+        newUser,
+      },
+    });
+  } catch (err) {
+    //
+    res.status(400).json({
+      status: "fail",
+      error: err.message,
+    });
+  }
+};
