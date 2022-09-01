@@ -1,4 +1,6 @@
 const User = require("../models/userModel");
+const {promisify}  = require('util');
+const jwt = require('jwt');
 
 exports.signupWithEmail = async (req, res) => {
   try {
@@ -31,8 +33,27 @@ exports.signupWithEmail = async (req, res) => {
 exports.createUserPassword = async (req, res) => {
   try {
     //
-    const { password } = req.body;
-    const newUser = await User.findByIdAndUpdate(id, password);
+  const { password } = req.body;
+  let token;
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith("Bearer")
+  ) {
+    token = req.headers.authorization.split(" ")[1];
+  } else if (req.cookies.jwt) {
+    token = req.cookies.jwt;
+  }
+
+  if (!token) {
+    return next(
+      new AppError("You are not logged in, Please login to get access!", 401)
+    );
+  }
+  // 2) Verification token
+  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+  // 3) Check if user still exists
+//   const currentUser = await User.findById(decoded.id);
+    const newUser = await User.findByIdAndUpdate(decoded.id, password);
     res.status(200).json({
       status: "success",
       data: {
@@ -51,8 +72,27 @@ exports.createUserPassword = async (req, res) => {
 exports.submitUserDetails = async (req, res) => {
   try {
     //
-    const { fname, lname, linkedInURL, city, state, country } = req.body;
-    const newUser = await User.findByIdAndUpdate(id, {
+  const { fname, lname, linkedInURL, city, state, country } = req.body;
+  let token;
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith("Bearer")
+  ) {
+    token = req.headers.authorization.split(" ")[1];
+  } else if (req.cookies.jwt) {
+    token = req.cookies.jwt;
+  }
+
+  if (!token) {
+    return next(
+      new AppError("You are not logged in, Please login to get access!", 401)
+    );
+  }
+  // 2) Verification token
+  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+  // 3) Check if user still exists
+//   const currentUser = await User.findById(decoded.id);
+    const newUser = await User.findByIdAndUpdate(decoded.id, {
       fname,
       lname,
       linkedInURL,
